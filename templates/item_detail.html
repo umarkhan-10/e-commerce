@@ -1,0 +1,230 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>{{ item.name }}</title>
+  <link rel="icon" type="image/png" href="{% static 'K-logo.jpg' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: #fff;
+      color: #000;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Navbar */
+    .navbar { background: #000; }
+    .navbar .nav-link { color: #fff !important; }
+    .navbar .nav-link:hover { color: #999 !important; }
+    .navbar-brand { color: #fff !important; font-weight: bold; }
+
+    /* Product */
+    .product-container { margin-top: 40px; }
+    .product-img { max-width: 100%; border-radius: 8px; }
+    .product-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 15px; }
+    .product-text { font-size: 1rem; margin-bottom: 8px; }
+
+    /* Buttons */
+    .btn-primary { background: #000; border: none; }
+    .btn-primary:hover { background: #333; }
+    .back-btn {
+      margin-bottom: 20px;
+      border: 1px solid #000;
+      padding: 6px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #000;
+      font-size: 0.9rem;
+    }
+    .back-btn:hover { background: #000; color: #fff; }
+
+    /* Review Section */
+    .review-box { border-bottom: 1px solid #ddd; padding: 10px 0; }
+    .review-name { font-weight: bold; }
+    .review-stars { color: #f5c518; } /* golden stars */
+
+    /* --- Black board for images --- */
+    .black-board {
+      border: 2px solid black;
+      padding: 3px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    {% include 'menu.html' %}
+
+<!-- Back Button -->
+<div class="container mb-2">
+ <a href="{% url 'index' %}" class="btn btn-primary mt-3">← Back</a>
+</div> 
+
+<div class="container">
+  <div class="row">
+
+    <!-- Image Carousel -->
+    <div class="col-md-6">
+      <div id="productCarousel" class="carousel slide">
+        <div class="carousel-inner">
+          {% if item.image %}
+          <div class="carousel-item active">
+            <img src="{{ item.image.url }}" class="d-block w-100 rounded shadow-sm black-board" style="height:350px; object-fit:cover;" alt="{{ item.name }}">
+          </div>
+          {% endif %}
+
+          {% if item.image2 %}
+          <div class="carousel-item">
+            <img src="{{ item.image2.url }}" class="d-block w-100 rounded shadow-sm black-board" style="height:350px; object-fit:cover;" alt="{{ item.name }}">
+          </div>
+          {% endif %}
+
+          {% if item.image3 %}
+          <div class="carousel-item">
+            <img src="{{ item.image3.url }}" class="d-block w-100 rounded shadow-sm black-board" style="height:350px; object-fit:cover;" alt="{{ item.name }}">
+          </div>
+          {% endif %}
+
+          {% if item.image4 %}
+          <div class="carousel-item">
+            <img src="{{ item.image4.url }}" class="d-block w-100 rounded shadow-sm black-board" style="height:350px; object-fit:cover;" alt="{{ item.name }}">
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Controls -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon"></span>
+        </button>
+
+        <!-- Thumbnails -->
+        <div class="carousel-indicators mt-2 position-static">
+          {% if item.image %}
+          <img src="{{ item.image.url }}" data-bs-target="#productCarousel" data-bs-slide-to="0" class="active rounded black-board" style="width:80px; height:80px; object-fit:cover; cursor:pointer;">
+          {% endif %}
+          {% if item.image2 %}
+          <img src="{{ item.image2.url }}" data-bs-target="#productCarousel" data-bs-slide-to="1" class="rounded black-board" style="width:80px; height:80px; object-fit:cover; cursor:pointer;">
+          {% endif %}
+          {% if item.image3 %}
+          <img src="{{ item.image3.url }}" data-bs-target="#productCarousel" data-bs-slide-to="2" class="rounded black-board" style="width:80px; height:80px; object-fit:cover; cursor:pointer;">
+          {% endif %}
+          {% if item.image4 %}
+          <img src="{{ item.image4.url }}" data-bs-target="#productCarousel" data-bs-slide-to="3" class="rounded black-board" style="width:80px; height:80px; object-fit:cover; cursor:pointer;">
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Details -->
+    <div class="col-md-6">
+      <h2 class="product-title">{{ item.name }}</h2>
+      <p class="product-text"><strong>Brand:</strong> {{ item.brand }}</p>
+      <p><strong>Price:</strong> ${{ item.price }}</p>
+      <p class="product-text"><strong>Discount:</strong> {{ item.discount }}%</p>
+      {% if highest_bid %}
+        <p><strong>Highest Bid:</strong> ${{ highest_bid }}</p>
+      {% else %}
+        <p><strong>No bids yet</strong></p>
+      {% endif %}
+
+      <!-- close bid -->
+{% if user == item.user %}
+  {% if not item.is_closed %}
+    <a href="{% url 'close_bid' item.id %}" class="btn btn-danger">Close Bid</a>
+  {% else %}
+    <p class="text-success fw-bold">Bidding Closed</p>
+    <a href="{% url 'reopen_bid' item.id %}" class="btn btn-secondary mt-2">Reopen Bid</a>
+  {% endif %}
+{% endif %}
+
+
+      
+      <button type="button" class="btn btn-primary btn-custom">Buy</button>
+      <button type="button" class="btn btn-outline-secondary btn-custom">Add to Cart</button>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Description -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <p class="product-text"><strong>Detail:</strong> {{ item.detail }}</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Reviews -->
+  <div class="container">
+    <h3>Reviews</h3>
+    {% for review in reviews %}
+    <div class="review-box">
+      <p class="review-name">{{ review.name }}</p>
+      <p class="review-stars">
+        {% for i in "12345"|slice:":review.stars"|make_list %}★{% endfor %}
+      </p>
+      <p>{{ review.comment }}</p>
+      <small class="text-muted">
+        Posted on {{ review.created_at|date:"F j, Y, g:i a" }}
+      </small>
+    </div>
+    {% empty %}
+    <p>No reviews yet.</p>
+    {% endfor %}
+     {% if user.is_authenticated %}
+    <a href="{% url 'add_review' item.id %}" class="btn btn-primary mt-3">Post Review</a>
+    {% endif %}
+    <br><br>
+  </div>
+
+  <hr>
+      <!-- Bidings -->
+<div class="container">
+    <h3>Bidding</h3>
+    {% for biding in bidings %}
+    <div class="biding-box">
+      <p class="biding-username">{{ biding.user.username }}</p>
+      <p class="bids">{{ biding.bid_amount }}</p>
+      <br>
+      <small class="text-muted">
+        Posted on {{ biding.created_at|date:"F j, Y, g:i a" }}
+      </small>
+      <br>
+
+      {% if user.is_authenticated %}
+      {% if user == biding.user %}
+      <a href="{% url 'bids_edit' item.id %}" class="btn btn-primary mt-3">Edit</a>
+      <a href="{% url 'bid_delete' item.id %}" class="btn btn-danger mt-3">Delete</a>
+      {% endif %}
+      {% endif %}
+      <hr>
+    </div>
+    {% empty %}
+    <p>No Bidding yet.</p>
+    {% endfor %}
+</div>
+
+{% if user.is_authenticated %}
+  {% if item.is_closed %}
+    <p class="text-danger fw-bold mt-3">Bidding is closed for this item.</p>
+  {% elif user_has_bid %}
+    <p class="text-info fw-bold mt-3">You already placed a bid on this item.</p>
+  {% else %}
+    <a href="{% url 'add_bids' item.id %}" class="btn btn-primary mt-3">Add bids</a>
+  {% endif %}
+{% endif %}
+
+    <br><br>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

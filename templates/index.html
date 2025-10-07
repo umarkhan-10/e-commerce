@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Koenigsegg</title>
+  <link rel="icon" type="image/png" href="{% static 'K-logo.jpg' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: #fff;
+      color: #000;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Navbar */
+    .navbar {
+      background-color: #000;
+    }
+    .navbar .nav-link {
+      color: #fff !important;
+    }
+    .navbar .nav-link:hover {
+      color: #f0ad4e !important;
+    }
+    .navbar-brand {
+      color: #f0ad4e !important;
+    }
+
+    /* Cards */
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    .card img {
+      height: 200px;
+      object-fit: cover;
+    }
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+    .card-text {
+      font-size: 0.95rem;
+    }
+
+    /* Heading */
+    h2 {
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    {% include 'menu.html' %}
+<!-- Items Loop -->
+<div class="container mt-4">
+  <h2 class="text-center mb-4">E-Comm Store</h2>
+  <hr>
+  <div class="row">
+    {% for item in items %}
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          {% if item.image %}
+            <a href="{% url 'item_detail' item.id %}">
+              <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}">
+            </a>
+          {% else %}
+            <div class="d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+              <span>No Image Available</span>
+            </div>
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ item.name }}</h5>
+            <p class="card-text"><strong>Price:</strong> ${{ item.price }}</p>
+            <p class="card-text"><strong>Discount:</strong> ${{ item.discount }}</p>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-center">No items available.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

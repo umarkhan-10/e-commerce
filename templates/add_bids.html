@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Bids</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+        <!-- Navbar -->
+    {% include 'menu.html' %}
+
+    <!-- Review Form Section -->
+    <div class="container form-container">
+        <a href="{% url 'item_detail' item.id %}" class="back-btn">← Back </a>
+    <br>
+    <br>
+
+        <h2>Add Your Bid{{ item.name }}</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        
+          <div class="mb-3">
+            <label class="form-label">Discount</label>
+            <input type="number" class="form-control" name="bid_amount">
+          </div>
+
+        <button type="submit" class="btn btn-primary">Submit Review</button>
+  </form>
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
