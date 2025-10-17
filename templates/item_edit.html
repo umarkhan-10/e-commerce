@@ -47,7 +47,7 @@
   <h1 style="color: #ffffff; font-size: 50px; text-align: center;"><b><b>Update</b></b></h1>
 
   <div class="d-flex justify-content-center align-items-center">
-  <form class="custom-form" method="POST" action="{% url 'item_edit' item.id %}" enctype="multipart/form-data" style="width: 50%;">
+  <form class="custom-form" method="POST" action="{% url 'item_edit' item.slug  %}" enctype="multipart/form-data" style="width: 50%;">
     {% csrf_token %}
 
     <div style="color: #ffffff;" class="mb-3">

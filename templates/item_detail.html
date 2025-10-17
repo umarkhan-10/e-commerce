@@ -127,25 +127,63 @@
       <p><strong>Price:</strong> ${{ item.price }}</p>
       <p class="product-text"><strong>Discount:</strong> {{ item.discount }}%</p>
       {% if highest_bid %}
-        <p><strong>Highest Bid:</strong> ${{ highest_bid }}</p>
-      {% else %}
-        <p><strong>No bids yet</strong></p>
-      {% endif %}
+  <p><strong>Highest Bid:</strong> ${{ highest_bid }}</p>
+{% else %}
+  <p><strong>No bids yet</strong></p>
+{% endif %}
+
+<button type="button" class="btn btn-primary btn-custom">Buy</button>
+<br>
+<br>
+<form action="{% url 'add_to_cart' item.slug %}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">Add to Cart</button>
+</form>
+
+      <hr>
+      
+<!-- winner -->
+{% if item.is_closed %}
+  <hr>
+  {% if item.winner %}
+    <p class="text-success fw-bold">🏆 Winner: {{ item.winner.username }}</p>
+  {% else %}
+    <p class="text-danger fw-bold">No winner — no bids were placed.</p>
+  {% endif %}
+  <hr>
+  {% if user == item.winner %}
+    <p class="text-success fw-bold">🎉 Congratulations! You won this auction!</p>
+  {% endif %}
+  <hr>
+{% endif %}
 
       <!-- close bid -->
 {% if user == item.user %}
   {% if not item.is_closed %}
-    <a href="{% url 'close_bid' item.id %}" class="btn btn-danger">Close Bid</a>
+    <a href="{% url 'close_bid' item.slug  %}" class="btn btn-danger">Close Bid</a>
   {% else %}
     <p class="text-success fw-bold">Bidding Closed</p>
-    <a href="{% url 'reopen_bid' item.id %}" class="btn btn-secondary mt-2">Reopen Bid</a>
+    <a href="{% url 'reopen_bid' item.slug  %}" class="btn btn-secondary mt-2">Reopen Bid</a>
   {% endif %}
 {% endif %}
 
+{% if user.is_authenticated %}
+  {% if user_liked %}
+    <form action="{% url 'toggle_like' item.slug %}" method="post" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-danger">❤️ Unlike</button>
+    </form>
+  {% else %}
+    <form action="{% url 'toggle_like' item.slug %}" method="post" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-primary">👍 Like</button>
+    </form>
+  {% endif %}
+  <p class="mt-2"><strong>{{ item.likes.count }} Likes</strong></p>
+{% else %}
+  <p class="text-muted mt-2">Login to like this item.</p>
+{% endif %}
 
-      
-      <button type="button" class="btn btn-primary btn-custom">Buy</button>
-      <button type="button" class="btn btn-outline-secondary btn-custom">Add to Cart</button>
     </div>
   </div>
 
@@ -178,7 +216,7 @@
     <p>No reviews yet.</p>
     {% endfor %}
      {% if user.is_authenticated %}
-    <a href="{% url 'add_review' item.id %}" class="btn btn-primary mt-3">Post Review</a>
+    <a href="{% url 'add_review' item.slug  %}" class="btn btn-primary mt-3">Post Review</a>
     {% endif %}
     <br><br>
   </div>
@@ -199,8 +237,8 @@
 
       {% if user.is_authenticated %}
       {% if user == biding.user %}
-      <a href="{% url 'bids_edit' item.id %}" class="btn btn-primary mt-3">Edit</a>
-      <a href="{% url 'bid_delete' item.id %}" class="btn btn-danger mt-3">Delete</a>
+      <a href="{% url 'bids_edit' item.slug  %}" class="btn btn-primary mt-3">Edit</a>
+      <a href="{% url 'bid_delete' item.slug  %}" class="btn btn-danger mt-3">Delete</a>
       {% endif %}
       {% endif %}
       <hr>
@@ -216,7 +254,7 @@
   {% elif user_has_bid %}
     <p class="text-info fw-bold mt-3">You already placed a bid on this item.</p>
   {% else %}
-    <a href="{% url 'add_bids' item.id %}" class="btn btn-primary mt-3">Add bids</a>
+    <a href="{% url 'add_bids' item.slug  %}" class="btn btn-primary mt-3">Add bids</a>
   {% endif %}
 {% endif %}
 

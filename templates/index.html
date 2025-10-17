@@ -63,7 +63,7 @@
       <div class="col-md-4 mb-4">
         <div class="card">
           {% if item.image %}
-            <a href="{% url 'item_detail' item.id %}">
+            <a href="{% url 'item_detail' item.slug  %}">
               <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}">
             </a>
           {% else %}

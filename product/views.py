@@ -1,6 +1,7 @@
 from django.shortcuts import render , HttpResponse, redirect, get_object_or_404
-from product.models import Item, Review, Biding
+from product.models import Item, Review, Biding, Like, Category, Cart
 from django.db.models import Max
+from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
@@ -20,8 +21,8 @@ def item(request):
         item = Item(name=name, image=image,image2=image2,image3=image3,image4=image4, price=price,discount=discount, brand=brand, detail=detail)
         item.save()
 
-def item_detail(request, id):
-    item = get_object_or_404(Item, id=id)
+def item_detail(request, slug):
+    item = get_object_or_404(Item, slug=slug)
     reviews = Review.objects.filter(item=item)
     highest_bid = item.bids.aggregate(Max("bid_amount"))["bid_amount__max"]
     bidings = item.bids.all().order_by('-created_at')
@@ -30,6 +31,10 @@ def item_detail(request, id):
     user_has_bid = False
     if request.user.is_authenticated:
         user_has_bid = Biding.objects.filter(item=item, user=request.user).exists()
+
+    user_liked = False
+    if request.user.is_authenticated:
+        user_liked = Like.objects.filter(user=request.user, item=item).exists()    
     
     context = {
         'item': item,
@@ -37,13 +42,14 @@ def item_detail(request, id):
         'reviews': reviews,
         'highest_bid': highest_bid,
         'user_has_bid': user_has_bid,
+        'user_liked': user_liked,
     }
 
     return render(request, 'item_detail.html', context)
 
 @login_required
-def add_review(request, id):
-    item = get_object_or_404(Item, id=id)
+def add_review(request, slug):
+    item = get_object_or_404(Item, slug=slug)
 
     if request.method == "POST":
         name = request.POST["name"]
@@ -57,7 +63,7 @@ def add_review(request, id):
             rating=rating,
             comment=comment
         )
-        return redirect("item_detail", id=item.id)  # back to detail page
+        return redirect("item_detail", slug=item.slug)  # back to detail page
 
     return render(request, "add_review.html", {"item": item})
 
@@ -96,8 +102,14 @@ def my_list(request):
     return render(request, "my_list.html", {"items": items})
 
 @login_required
-def item_edit(request, id):
-    item = get_object_or_404(Item, id=id)
+def my_like(request):
+    likes = Like.objects.filter(user=request.user).select_related("item")
+    items = [like.item for like in likes]
+    return render(request, "my_like.html", {"items": items})
+
+@login_required
+def item_edit(request, slug):
+    item = get_object_or_404(Item, slug=slug)
 
     if request.method == "POST":
         name = request.POST['name']
@@ -135,14 +147,14 @@ def item_edit(request, id):
     return render(request, 'item_edit.html', {'item': item})
 
 @login_required
-def item_delete(request, id):
-    item = get_object_or_404(Item, id=id)
+def item_delete(request, slug):
+    item = get_object_or_404(Item, slug=slug)
     item.delete()
     return redirect('my_list')   # go back to "my list" page 
 
 @login_required
-def add_bids(request, id):
-    item = get_object_or_404(Item, id=id)
+def add_bids(request, slug):
+    item = get_object_or_404(Item, slug=slug)
 
     if request.method == "POST":
         bid_amount = request.POST["bid_amount"]
@@ -152,13 +164,13 @@ def add_bids(request, id):
             item=item,
             bid_amount=bid_amount,
         )
-        return redirect("item_detail", id=item.id)  # back to detail page
+        return redirect("item_detail", slug=item.slug)  # back to detail page
     
     return render(request, "add_bids.html", {"item": item})
 
 @login_required
-def bid_edit(request, id):
-    item = get_object_or_404(Item, id=id)
+def bid_edit(request, slug):
+    item = get_object_or_404(Item, slug=slug)
     bid, created = Biding.objects.get_or_create(item=item, user=request.user)
 
     if request.method == "POST":
@@ -174,29 +186,85 @@ def bid_edit(request, id):
         bid.bid_amount = bid_amount
         bid.created_at = timezone.now()  # update timestamp
         bid.save()
-        return redirect("item_detail", id=item.id)
+        return redirect("item_detail", slug=item.slug)
 
     return render(request, "bid_edit.html", {"item": item, "bid": bid})
 
 @login_required
-def bid_delete(request, id):
-    item = get_object_or_404(Item, id=id)
+def bid_delete(request, slug):
+    item = get_object_or_404(Item, slug=slug)
     bid = get_object_or_404(Biding, item=item, user=request.user)
     bid.delete()
-    return redirect('item_detail', id=item.id)   # go back to "item detail" page
+    return redirect('item_detail', slug=item.slug)   # go back to "item detail" page
 
 @login_required
-def close_bid(request, id):
-    item = get_object_or_404(Item, id=id)
-    if request.user == item.user:  # only the owner
+def close_bid(request, slug):
+    item = get_object_or_404(Item, slug=slug)
+    if request.user == item.user:  # only the owner can close
+        highest_bid = Biding.objects.filter(item=item).order_by('-bid_amount').first()
+        if highest_bid:
+            item.winner = highest_bid.user
         item.is_closed = True
         item.save()
-    return redirect('item_detail', id=id)  # or your detail view name
+    return redirect('item_detail', slug=slug)
 
 @login_required
-def reopen_bid(request, id):
-    item = get_object_or_404(Item, id=id)
+def reopen_bid(request, slug):
+    item = get_object_or_404(Item, slug=slug)
     if request.user == item.user:  # only owner can reopen
         item.is_closed = False
         item.save()
-    return redirect('item_detail', id=id)
+    return redirect('item_detail', slug=slug)
+
+@login_required
+def toggle_like(request, slug):
+    item = get_object_or_404(Item, slug=slug)
+    like, created = Like.objects.get_or_create(user=request.user, item=item)
+
+    if not created:
+        # already liked → unlike
+        like.delete()
+
+    return redirect('item_detail', slug=slug)
+
+@login_required
+def category_view(request, slug):
+    category = get_object_or_404(Category, slug=slug)
+    items = Item.objects.filter(category=category)
+    return render(request, 'category.html', {'category': category, 'items': items})
+
+@login_required
+def add_to_cart(request, slug):
+    item = get_object_or_404(Item, slug=slug)
+    cart_item, created = Cart.objects.get_or_create(user=request.user, item=item)
+    
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+        messages.info(request, "Item quantity updated in your cart.")
+    else:
+        messages.success(request, "Item added to your cart.")
+    
+    return redirect('my_cart')  # or change to redirect('item_detail', slug=item.slug)
+
+@login_required
+def my_cart(request):
+    cart_items = Cart.objects.filter(user=request.user)
+    total = sum(item.item.price * item.quantity for item in cart_items)
+    return render(request, 'my_cart.html', {'cart_items': cart_items, 'total': total})
+
+@login_required
+def remove_from_cart(request, slug):
+    item = get_object_or_404(Item, slug=slug)
+    Cart.objects.filter(user=request.user, item=item).delete()
+    messages.success(request, "Item removed from your cart.")
+    return redirect('cart_view')
+
+def update_cart_quantity(request, slug):
+    if request.method == 'POST':
+        item = get_object_or_404(Item, slug=slug)
+        cart_item = get_object_or_404(Cart, item=item, user=request.user)
+        quantity = int(request.POST.get('quantity', 1))
+        cart_item.quantity = quantity
+        cart_item.save()
+        return redirect('my_cart')
