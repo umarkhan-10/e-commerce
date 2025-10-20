@@ -1,11 +1,12 @@
 from django.urls import path
 from .views import item, item_detail,item_edit,item_delete, add_review, item_upload_form, my_list, add_bids, bid_edit, bid_delete, close_bid, reopen_bid, toggle_like, my_like, category_view
-from .views import add_to_cart, my_cart, remove_from_cart, update_cart_quantity
+from .views import add_to_cart, my_cart, remove_from_cart, update_cart_quantity, search_items
 
 
 urlpatterns = [
 
     path('', item, name='item'),
+    path('search/', search_items, name='search_items'),
     path('item/<slug:slug>', item_detail, name='item_detail'),
     path("item/<slug:slug>/edit", item_edit, name="item_edit"),
     path("item/<slug:slug>/bids", add_bids, name="add_bids"),

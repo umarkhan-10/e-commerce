@@ -12,44 +12,6 @@
       color: #000;
       font-family: Arial, sans-serif;
     }
-
-    /* Navbar */
-    .navbar { background: #000; }
-    .navbar .nav-link { color: #fff !important; }
-    .navbar .nav-link:hover { color: #999 !important; }
-    .navbar-brand { color: #fff !important; font-weight: bold; }
-
-    /* Product */
-    .product-container { margin-top: 40px; }
-    .product-img { max-width: 100%; border-radius: 8px; }
-    .product-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 15px; }
-    .product-text { font-size: 1rem; margin-bottom: 8px; }
-
-    /* Buttons */
-    .btn-primary { background: #000; border: none; }
-    .btn-primary:hover { background: #333; }
-    .back-btn {
-      margin-bottom: 20px;
-      border: 1px solid #000;
-      padding: 6px 16px;
-      border-radius: 6px;
-      text-decoration: none;
-      color: #000;
-      font-size: 0.9rem;
-    }
-    .back-btn:hover { background: #000; color: #fff; }
-
-    /* Review Section */
-    .review-box { border-bottom: 1px solid #ddd; padding: 10px 0; }
-    .review-name { font-weight: bold; }
-    .review-stars { color: #f5c518; } /* golden stars */
-
-    /* --- Black board for images --- */
-    .black-board {
-      border: 2px solid black;
-      padding: 3px;
-      border-radius: 10px;
-    }
   </style>
 </head>
 <body>
@@ -125,7 +87,10 @@
       <h2 class="product-title">{{ item.name }}</h2>
       <p class="product-text"><strong>Brand:</strong> {{ item.brand }}</p>
       <p><strong>Price:</strong> ${{ item.price }}</p>
-      <p class="product-text"><strong>Discount:</strong> {{ item.discount }}%</p>
+      {% if item.discount %}
+                  <p class="text-success">Discount: {{ item.discount }}%</p>
+      {% endif %}
+
       {% if highest_bid %}
   <p><strong>Highest Bid:</strong> ${{ highest_bid }}</p>
 {% else %}

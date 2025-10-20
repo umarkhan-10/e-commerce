@@ -5,6 +5,10 @@ from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 
+def search_items(request):
+    query = request.GET.get('q', '')
+    items = Item.objects.filter(name__icontains=query) if query else Item.objects.none()
+    return render(request, 'search.html', {'items': items, 'query': query})
 
 def item(request):
     if request.method == 'POST':
@@ -68,8 +72,12 @@ def add_review(request, slug):
     return render(request, "add_review.html", {"item": item})
 
 def item_upload_form(request):
+    categories = Category.objects.all()
+
     if request.method == "POST":
         name = request.POST['name']
+        category_id = request.POST.get('category')
+        category = Category.objects.get(id=category_id) if category_id else None
         image = request.FILES.get('image')
         image2 = request.FILES.get('image2')
         image3 = request.FILES.get('image3')
@@ -82,6 +90,7 @@ def item_upload_form(request):
         item = Item(   # ✅ use model class here
             user=request.user,
             name=name,
+            category=category,
             image=image,
             image2=image2,
             image3=image3,
@@ -94,7 +103,7 @@ def item_upload_form(request):
         item.save()
 
         return redirect('index')
-    return render(request, 'form.html')
+    return render(request, 'form.html' , {'categories': categories})
 
 @login_required
 def my_list(request):

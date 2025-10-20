@@ -1,46 +1,63 @@
 {% load static %}
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
-      <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="{% url 'index' %}">MySite</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="{% url 'index' %}">MySite</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-             {% if user.is_authenticated %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'item_upload_form' %}">Item Upload</a></li>
-            <li class="nav-item"><a class="nav-link" href="{% url 'my_list' %}">My List</a></li>
-            <a class="nav-link" href="{% url 'my_cart' %}">My Cart</a>
-            <a class="nav-link" href="{% url 'my_like' %}">My Liked Items</a>
-
-          <li class="nav-item dropdown">
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        {% if user.is_authenticated %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'item_upload_form' %}">Item Upload</a></li>
+        
+        <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-          Categories
+            Categories
           </a>
-        <ul class="dropdown-menu">
-        {% for cat in categories %}
-          <li><a class="dropdown-item" href="{% url 'category' cat.slug %}">{{ cat.name }}</a></li>
-        {% empty %}
-          <li><span class="dropdown-item text-muted">No categories</span></li>
-        {% endfor %}
+          <ul class="dropdown-menu">
+            {% for cat in categories %}
+            <li><a class="dropdown-item" href="{% url 'category' cat.slug %}">{{ cat.name }}</a></li>
+            {% empty %}
+            <li><span class="dropdown-item text-muted">No categories</span></li>
+            {% endfor %}
           </ul>
         </li>
 
-            {% endif %}
-          </ul>
+        {% endif %}
+      </ul>
 
+      <!-- Search -->
+      <form class="d-flex" role="search" action="{% url 'search_items' %}" method="get">
+        <input class="form-control me-2" type="search" name="q" placeholder="Search" aria-label="Search"
+          value="{{ request.GET.q }}">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+      <!-- Search End -->
 
-          <ul class="navbar-nav ms-auto">
-            {% if user.is_authenticated %}
-              <li class="nav-item"><span class="nav-link">Hello, {{ user.username }}!</span></li>
-              <li class="nav-item"><a class="nav-link text-warning" href="{% url 'logout' %}">Logout</a></li>
-            {% else %}
-              <li class="nav-item"><a class="nav-link text-warning" href="{% url 'login' %}">Login </a></li>
-              <li class="nav-item"><a class="nav-link text-warning" href="{% url 'signup' %}">Register</a></li>
-            {% endif %}
+      <ul class="navbar-nav ms-auto">
+        {% if user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Hello, {{ user.username }}!
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'my_cart' %}">My Cart</a></li>
+            <li><a class="dropdown-item" href="{% url 'my_like' %}">My Liked Items</a></li>
+            <li><a class="dropdown-item" href="{% url 'my_list' %}">My List</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
           </ul>
-        </div>
-      </div>
-    </nav>
+        </li>
+        <li class="nav-item"><a class="nav-link text-warning" href="{% url 'logout' %}">Logout</a></li>
+        {% else %}
+        <li class="nav-item"><a class="nav-link text-warning" href="{% url 'login' %}">Login </a></li>
+        <li class="nav-item"><a class="nav-link text-warning" href="{% url 'signup' %}">Register</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>

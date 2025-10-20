@@ -1,0 +1,13 @@
+<div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+  <div class="card h-100 shadow-sm">
+    <img src="{{ item.image.url }}" class="card-img-top img-fluid" alt="{{ item.name }}">
+    <div class="card-body">
+      <h5 class="card-title">{{ item.name }}</h5>
+      {% if item.discount %}
+        <p class="text-success">Discount: {{ item.discount }}%</p>
+      {% endif %}
+      <p class="text-muted mb-2">{{ item.description|truncatewords:10 }}</p>
+      <a href="{% url 'item_detail' item.slug %}" class="btn btn-sm btn-primary">View</a>
+    </div>
+  </div>
+</div>
